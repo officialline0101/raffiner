@@ -187,63 +187,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>princess<br>予約フォーム</h1>
+        <h1>ラフィーネ<br>予約フォーム</h1>
         <div class="label">お客様名</div>
         <input type="text" id="name" placeholder="お名前を入力してください">
 
         <div class="label">電話番号</div>
         <input type="tel" id="phone" placeholder="電話番号を入力してください">
 
-        <div class="label">ネイルのオフに関して選択してください</div>
+        <div class="label">来店回数をお選びください</div>
         <div class="visit-buttons">
-            <button type="button" id="firstVisit" onclick="selectVisit(this)">オフあり</button>
-            <button type="button" id="repeatVisit" onclick="selectVisit(this)">オフなし</button>
+            <button type="button" id="firstVisit" onclick="selectVisit(this)">初めて</button>
+            <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
         </div>
 
-        <div class="label">メニューをお選びください</div>
-        <div class="menu-sections">
-            <button type="button" onclick="showMenu('male')">ハンドメニュー</button>
-            <button type="button" onclick="showMenu('female')">フットメニュー</button>
-        </div>
-
-        <div id="male" class="menu-section">
-            <label>◆ハンドメニュー◆</label>
-            <div class="symptoms">
-                <button type="button" onclick="selectSymptom(this)">デザインアートコース</button>
-                <button type="button" onclick="selectSymptom(this)">4本アートコース</button>
-                <button type="button" onclick="selectSymptom(this)">2本アートコース</button>
-                <button type="button" onclick="selectSymptom(this)">定額デザインコース</button>
-                <button type="button" onclick="selectSymptom(this)">グラデーション</button>
-                <button type="button" onclick="selectSymptom(this)">フレンチ</button>
-                <button type="button" onclick="selectSymptom(this)">ワンカラー</button>
-                <button type="button" onclick="selectSymptom(this)">お直しネイル</button>
-                <button type="button" onclick="selectSymptom(this)">長さ出し</button>
-                <button type="button" onclick="selectSymptom(this)">ハンドネイルケア</button>
-                <button type="button" onclick="selectSymptom(this)">オフのみ</button>
-            </div>
-            
-<label id="repairLabel">本数をお選びください</label>
-<div id="repairButtons" class="irradiations">
-                <button type="button" id="oneirradiations" onclick="selectirradiations(this)">1本</button>
-                <button type="button" id="twoirradiations" onclick="selectirradiations(this)">2本</button>
-                <button type="button" id="threeirradiations" onclick="selectirradiations(this)">3本</button>
-                <button type="button" id="fourirradiations" onclick="selectirradiations(this)">4本</button>
-                <button type="button" id="fiveirradiations" onclick="selectirradiations(this)">5本</button>
-                <button type="button" id="sixirradiations" onclick="selectirradiations(this)">6本</button>
-                <button type="button" id="sevenirradiations" onclick="selectirradiations(this)">7本</button>
-                <button type="button" id="eightirradiations" onclick="selectirradiations(this)">8本</button>
-                <button type="button" id="nineirradiations" onclick="selectirradiations(this)">9本</button>
-                <button type="button" id="tenirradiations" onclick="selectirradiations(this)">10本</button>
-            </div>
-        </div>
-
-        <div id="female" class="menu-section">
-            <label>◆フットメニュー◆</label>
-            <div class="symptoms">
-                <button type="button" onclick="selectSymptom(this)">フットデザインアートコース</button>
-                <button type="button" onclick="selectSymptom(this)">親指アートコース</button>
-                <button type="button" onclick="selectSymptom(this)">フット角質ケア</button>
-            </div>
+        <div class="label">コースをお選びください<br>（18時以降のご予約はご相談ください）</div>
+        <div class="symptoms">
+            <button type="button" onclick="selectSymptom(this)">セルマン前処置トリートメント</button>
+            <button type="button" onclick="selectSymptom(this)">毛穴エクストラクション</button>
+            <button type="button" onclick="selectSymptom(this)">エイジングケアスペシャルコース</button>
+            <button type="button" onclick="selectSymptom(this)">エイジングケアコース</button>
+            <button type="button" onclick="selectSymptom(this)">1day・ブライダルコース</button>
         </div>
 
         <div class="label">希望日時</div>
@@ -290,11 +253,11 @@
         let selectedFullDate = '';
         let currentDate = new Date();
         let availabilityCache = {};
-        let irradiationsCount = ''; <!-- 選択された症状を格納する変数 -->
 
+        let irradiationsCount = ''; <!-- 選択された症状を格納する変数 -->
         document.addEventListener('DOMContentLoaded', function() {
             liff.init({
-                liffId: '2005254357-zKma9BZk'
+                liffId: ''
             }).then(() => {
                 console.log('LIFF初期化成功');
             }).catch((err) => {
@@ -304,49 +267,13 @@
             fetchAvailability(currentDate);
         });
 
-// メニューとその所要時間のマッピング
-        const menuTimes = {
-            "デザインアートコース": 120,
-            "4本アートコース": 90,
-            "2本アートコース": 60,
-            "定額デザインコース": 120,
-            "グラデーション": 90,
-            "フレンチ": 90,
-            "ワンカラー": 60,
-            "お直しネイル": 60,
-            "長さ出し": 60,
-            "ハンドネイルケア": 60,
-            "オフのみ": 30,
-            "フットデザインアートコース": 120,
-            "親指アートコース": 90,
-            "フット角質ケア": 60,
-        };
-
 let selectedMenuTime = 0;
 
         function selectVisit(button) {
             const buttons = document.querySelectorAll('.visit-buttons button');
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            visitCount = button.id === 'firstVisit' ? 'オフあり' : 'オフなし';
-        }
-
-        function selectirradiations(element) {
-            /* 訪問回数ボタンの選択状態をリセット */
-            document.getElementById('oneirradiations').classList.remove('active');
-            document.getElementById('twoirradiations').classList.remove('active');
-            document.getElementById('threeirradiations').classList.remove('active');
-            document.getElementById('fourirradiations').classList.remove('active');
-            document.getElementById('fiveirradiations').classList.remove('active');
-            document.getElementById('sixirradiations').classList.remove('active');
-            document.getElementById('sevenirradiations').classList.remove('active');
-            document.getElementById('eightirradiations').classList.remove('active');
-            document.getElementById('nineirradiations').classList.remove('active');
-            document.getElementById('tenirradiations').classList.remove('active');
-            /* クリックされたボタンを選択状態にする */
-            element.classList.add('active');
-            /* 選択された訪問回数を変数に格納 */
-            irradiationsCount = element.innerText;
+            visitCount = button.id === 'firstVisit' ? '初めて' : '2回目以降';
         }
 
         function selectSymptom(button) {
@@ -354,6 +281,7 @@ let selectedMenuTime = 0;
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             selectedSymptom = button.textContent;
+
 
     const repairLabel = document.getElementById('repairLabel');
     const repairButtons = document.getElementById('repairButtons');
@@ -372,8 +300,7 @@ let selectedMenuTime = 0;
                 section.classList.remove('active');
             });
             document.getElementById(menu).classList.add('active');
-        }
-        
+        }        
 function selectDate(cell) {
     // "unavailable" クラスが付いている場合はクリックを無効化
     if (cell.classList.contains('unavailable')) {
@@ -419,7 +346,7 @@ if (!formData.name || !formData.phone) {
             // LINEトークにメッセージを送信
             liff.sendMessages([{
                 type: 'text',
-                text: `【予約フォーム】\nお名前：${formData.name}\n電話番号：${formData.phone}\nコース：${formData.selectedSymptom}${formData.visitCount}${formData.irradiationsCount}\nネイル：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
+                text: `【予約フォーム】\nお名前：${formData.name}\n電話番号：${formData.phone}\nコース：${formData.selectedSymptom}${formData.visitCount}${formData.irradiationsCount}\n来店回数【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
                 alert('当日キャンセルは無いようにお願いいたします。キャンセル料発生いたします。');
@@ -451,7 +378,7 @@ async function fetchAvailability(date) {
         return;
     }
 
-    const url = 'https://script.google.com/macros/s/AKfycbyVpOPJeMa5G-AXWCcqooULWyo17yxCvID8kI4JAEVkiaZgbddQOHiWejnW_hqxjwXlbw/exec' + 
+    const url = 'https://script.google.com/macros/s/AKfycbw_oSGlS7dMLohzyYXatvSI56HYgUvNlSl4Vlhz9Eo7h49r3HXlGFWjPPJeWkJmbSc/exec' + 
                 `?startTime=${startTime.toISOString()}&endTime=${endTime.toISOString()}`;
 
     try {
@@ -488,8 +415,7 @@ function updateCalendar(availability, businessDays) {
         '12:00', '12:30', '13:00', '13:30',
         '14:00', '14:30', '15:00', '15:30',
         '16:00', '16:30', '17:00', '17:30',
-        '18:00', '18:30', '19:00', '19:30',
-        '20:00', '20:30', '21:00'
+        '18:00'
     ];
 
     if (table.rows.length === 0) {
@@ -576,20 +502,20 @@ for (let i = 0; i < 7; i++) {
         }
         // 土日の19:30～21:00を×にする条件
         else if ((slotStart.getDay() === 0 || slotStart.getDay() === 6) && 
-            ((slotStart.getHours() === 19 && slotStart.getMinutes() >= 30) || 
-             (slotStart.getHours() === 20 || slotStart.getHours() === 21))) {
+            ((slotStart.getHours() === 0 && slotStart.getMinutes() >= 00) || 
+             (slotStart.getHours() === 1 || slotStart.getHours() === 1))) {
             cell.textContent = '✕';
             cell.classList.add('unavailable');
         }
         // 月火木金の09:30～17:30を×にする条件
         else if ((slotStart.getDay() === 1 || slotStart.getDay() === 2 || 
-                  slotStart.getDay() === 4 || slotStart.getDay() === 5) && 
-                 (slotStart.getHours() >= 9 && slotStart.getHours() < 10)) {
+                  slotStart.getDay() === 1 || slotStart.getDay() === 1) && 
+                 (slotStart.getHours() >= 1 && slotStart.getHours() < 1)) {
             cell.textContent = '✕';
             cell.classList.add('unavailable');
         }
         // 日曜日で、営業日ではない場合
-        else if (slotStart.getDay() === 3 && !isBusinessDay && businessEventTimes.length === 0) {
+        else if (slotStart.getDay() === 5 && !isBusinessDay && businessEventTimes.length === 0) {
             cell.textContent = '✕';
             cell.classList.add('unavailable');
         }
@@ -646,8 +572,8 @@ for (let i = 0; i < 7; i++) {
 
     // ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
     for (let i = 0; i < 7; i++) {
-        const twentyOClockRow = times.indexOf('20:30');
-        const twentyOneOClockRow = times.indexOf('21:00');
+        const twentyOClockRow = times.indexOf('17:30');
+        const twentyOneOClockRow = times.indexOf('18:00');
 
         for (let j = twentyOClockRow; j < times.length; j++) {
             const cell = table.rows[j].cells[i + 1];

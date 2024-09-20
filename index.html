@@ -183,31 +183,61 @@
 #repairLabel, #repairButtons {
     display: none;
 }
+.menu-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.menu-sections button {
+    flex: 1;
+    padding: 11px 12px; /* ボタンのサイズを少し小さく */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
+    white-space: nowrap;
+    margin-bottom: 12px; /* ボタンの間に余白を追加 */
+}
+
+.menu-sections button.active {
+    background-color: #444;
+    color: #fff;
+}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ラフィーネ<br>予約フォーム</h1>
-        <div class="label">お客様名</div>
+        <div class="label">氏名</div>
         <input type="text" id="name" placeholder="お名前を入力してください">
 
         <div class="label">電話番号</div>
         <input type="tel" id="phone" placeholder="電話番号を入力してください">
 
-        <div class="label">来店回数をお選びください</div>
+        <div class="label">ご来店回数をお選びください</div>
         <div class="visit-buttons">
             <button type="button" id="firstVisit" onclick="selectVisit(this)">初めて</button>
             <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
         </div>
 
-        <div class="label">コースをお選びください<br>（18時以降のご予約はご相談ください）</div>
-        <div class="symptoms">
-            <button type="button" onclick="selectSymptom(this)">セルマン前処置トリートメント</button>
-            <button type="button" onclick="selectSymptom(this)">毛穴エクストラクション</button>
-            <button type="button" onclick="selectSymptom(this)">エイジングケアスペシャルコース</button>
-            <button type="button" onclick="selectSymptom(this)">エイジングケアコース</button>
-            <button type="button" onclick="selectSymptom(this)">1day・ブライダルコース</button>
+        <!-- 性別が選択されるまで非表示にする部分 -->
+        <div class="label" id="menuLabel">メニューをお選びください</div>
+        <div class="menu-sections" id="menuSections">
+            <!-- ボタンリスト -->
+    <button type="button" onclick="selectSymptom(this)" id="menu1">セルマン前処理トリートメント</button>
+    <button type="button" onclick="selectSymptom(this)" id="menu2">毛穴エクストラクション</button>
+    <button type="button" onclick="selectSymptom(this)" id="menu3">エイジングケアコース</button>
+    <button type="button" onclick="selectSymptom(this)" id="menu4">エイジングケアスペシャルコース</button>
+    <button type="button" onclick="selectSymptom(this)" id="menu5">オールハンドリフトフェイシャルケア</button>
+    <button type="button" onclick="selectSymptom(this)" id="menu6">相談して決める</button>
         </div>
+
+        <div id="treatment-text" style="margin-bottom: 20px;"></div>
 
         <div class="label">希望日時</div>
         <div class="calendar-container">
@@ -240,7 +270,7 @@
             </div>
         </div>
 
-        <div class="label">メッセージ<br>（質問等お気軽にご記入ください）</div>
+        <div class="label">お悩みの症状をお書きください</div>
         <textarea id="message" rows="4" placeholder="メッセージを入力してください"></textarea>
 
         <button class="submit-button" onclick="submitForm()">予約を行う</button>
@@ -254,10 +284,9 @@
         let currentDate = new Date();
         let availabilityCache = {};
 
-        let irradiationsCount = ''; <!-- 選択された症状を格納する変数 -->
         document.addEventListener('DOMContentLoaded', function() {
             liff.init({
-                liffId: '2006129735-a0XoN7JA'
+                liffId: '2005612862-y5rJ0deR'
             }).then(() => {
                 console.log('LIFF初期化成功');
             }).catch((err) => {
@@ -269,38 +298,67 @@
 
 let selectedMenuTime = 0;
 
-        function selectVisit(button) {
-            const buttons = document.querySelectorAll('.visit-buttons button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            visitCount = button.id === 'firstVisit' ? '初めて' : '2回目以降';
-        }
+        // 初期状態でメニューセクションを非表示にする
+        document.getElementById('menuLabel').style.display = 'none';
+        document.getElementById('menuSections').style.display = 'none';
 
-        function selectSymptom(button) {
-            const buttons = document.querySelectorAll('.symptoms button');
+        function selectVisit(element) {
+            // 訪問回数ボタンの選択状態をリセット
+            document.getElementById('firstVisit').classList.remove('active');
+            document.getElementById('repeatVisit').classList.remove('active');
+            
+            // クリックされたボタンを選択状態にする
+            element.classList.add('active');
+            
+            // 選択された訪問回数を変数に格納
+            visitCount = element.innerText;
+            
+            // 性別が選択されたらメニューセクションを表示する
+            document.getElementById('menuLabel').style.display = 'block';
+            document.getElementById('menuSections').style.display = 'block';
+
+        // メニューの表示をリセット
+        document.querySelectorAll('.menu-sections button').forEach(button => {
+            button.style.display = 'none';
+        });
+
+        // 訪問回数に応じて表示するメニューを設定
+        if (visitCount === '初めて') {
+            // 初回の場合に表示するメニュー
+            showMenus(['menu1', 'menu2', 'menu3', 'menu4', 'menu5', 'menu6']); // セルマン前処理トリートメント, 毛穴エクストラクション
+        } else if (visitCount === '2回目以降') {
+            // 2回目以降の場合に表示するメニュー
+            showMenus(['menu1', 'menu2', 'menu3', 'menu4', 'menu5']); // エイジングケアコース, エイジングケアスペシャルコース, オールハンドリフトフェイシャルケア, 相談して決める
+        }
+    }
+
+    // メニュー表示を簡単に管理できる関数
+    function showMenus(menuIds) {
+        menuIds.forEach(function(menuId) {
+            document.getElementById(menuId).style.display = 'inline-block';
+        });
+    }
+
+        function selectSymptom(button, treatmentId) {
+            // すべてのボタンから 'active' クラスを削除
+            const buttons = document.querySelectorAll('.menu-sections button');
             buttons.forEach(btn => btn.classList.remove('active'));
+
+            // クリックされたボタンに 'active' クラスを追加
             button.classList.add('active');
             selectedSymptom = button.textContent;
-
 
     const repairLabel = document.getElementById('repairLabel');
     const repairButtons = document.getElementById('repairButtons');
 
-    if (selectedSymptom === 'お直しネイル' || selectedSymptom === '長さ出し') {
+    if (selectedSymptom === '初めて' || selectedSymptom === '2回目以降') {
         repairLabel.style.display = 'block';
         repairButtons.style.display = 'flex';
     } else {
         repairLabel.style.display = 'none';
         repairButtons.style.display = 'none';
     }
-}
-
-        function showMenu(menu) {
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(menu).classList.add('active');
-        }        
+}        
 function selectDate(cell) {
     // "unavailable" クラスが付いている場合はクリックを無効化
     if (cell.classList.contains('unavailable')) {
@@ -332,24 +390,23 @@ function selectDate(cell) {
                 phone: document.getElementById('phone').value,
                 visitCount: visitCount,
                 selectedSymptom: selectedSymptom,
-                irradiationsCount: irradiationsCount,
                 dates: [selectedFullDate],
                 message: document.getElementById('message').value
             };
 
 // フォームデータのチェック
-if (!formData.name || !formData.phone|| !formData.selectedSymptom) {
-    alert('お名前・電話番号ご記入ください。');
+if (!formData.name || !formData.phone|| !formData.selectedSymptom|| !formData.visitCount) {
+    alert('氏名・電話番号・来店回数・メニューすべてご記入ください。');
     return;
 }
 
             // LINEトークにメッセージを送信
             liff.sendMessages([{
                 type: 'text',
-                text: `【予約フォーム】\nお名前：${formData.name}\n電話番号：${formData.phone}\nコース：${formData.selectedSymptom}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
+                text: `【予約フォーム】お名前：${formData.name}\n電話番号：${formData.phone}\nメニュー：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
-                alert('当日キャンセルは無いようにお願いいたします。キャンセル料発生いたします。');
+                alert('当日キャンセルは無いようにお願いいたします。');
                 /* LIFFウィンドウを閉じる */
                 liff.closeWindow();
             }).catch((err) => {
@@ -378,7 +435,7 @@ async function fetchAvailability(date) {
         return;
     }
 
-    const url = 'https://script.google.com/macros/s/AKfycbyV5Pqk2LgtspA765KmCw7oOX7wAvvGOFQkEvn5ldIvYz97JAc35mEgb3kvp0BAXBoG/exec' + 
+    const url = 'https://script.google.com/macros/s/AKfycbwP-Mc5X2mMuGPeKmZLTk4S8woxHoUGMFlbnaBd4TVYQJhPzTq9PCbyFHeOcYx06jXA/exec' + 
                 `?startTime=${startTime.toISOString()}&endTime=${endTime.toISOString()}`;
 
     try {
@@ -411,11 +468,10 @@ function updateCalendar(availability, businessDays) {
     const table = calendar.querySelector('table tbody');
 
     const times = [
-        '10:00', '10:30', '11:00', '11:30',
+        '09:30','10:00', '10:30', '11:00', '11:30',
         '12:00', '12:30', '13:00', '13:30',
         '14:00', '14:30', '15:00', '15:30',
-        '16:00', '16:30', '17:00', '17:30',
-        '18:00'
+        '16:00', '16:30', '17:00', '17:30'
     ];
 
     if (table.rows.length === 0) {
@@ -443,52 +499,55 @@ function updateCalendar(availability, businessDays) {
         for (let i = 1; i < row.cells.length; i++) {
             row.cells[i].textContent = '';
             row.cells[i].removeAttribute('data-date');
-            row.cells[i].classList.remove('available', 'unavailable', 'selected');
+            row.cells[i].classList.remove('available', 'unavailable', 'selected', 'blue', 'red');
         }
     }
 
-// テーブルの内容を更新
-for (let i = 0; i < 7; i++) {
-    const day = new Date(currentDate);
-    day.setDate(day.getDate() + i);
+    // 現在の日時を取得
+    const now = new Date();
 
-    let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
+    // テーブルの内容を更新
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(currentDate);
+        day.setDate(day.getDate() + i);
 
-    availability.forEach(slot => {
-        const eventStart = new Date(slot.startTime);
-        const eventEnd = new Date(slot.endTime);
-        if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
-            businessEventTimes.push({ start: eventStart, end: eventEnd });
-        }
-    });
+        let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
 
-    for (let j = 0; j < times.length; j++) {
-        const cell = table.rows[j].cells[i + 1];
-        const slotStart = new Date(day);
-        slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
-
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotStart.getMinutes() + 30);
-
-        const isBusinessDay = businessDays.some(businessDay => {
-            const businessDayStart = new Date(businessDay.start);
-            const businessDayEnd = new Date(businessDay.end);
-            return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
-        });
-
-        const isBusinessEventTime = businessEventTimes.some(event => {
-            return slotStart < event.end && event.start < slotEnd;
-        });
-
-        const count = availability.reduce((acc, slot) => {
+        availability.forEach(slot => {
             const eventStart = new Date(slot.startTime);
             const eventEnd = new Date(slot.endTime);
-
-            if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
-                return acc + 1;
+            if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
+                businessEventTimes.push({ start: eventStart, end: eventEnd });
             }
-            return acc;
-        }, 0);
+        });
+
+        for (let j = 0; j < times.length; j++) {
+            const cell = table.rows[j].cells[i + 1];
+            const slotStart = new Date(day);
+            slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
+
+            const slotEnd = new Date(slotStart);
+            slotEnd.setMinutes(slotStart.getMinutes() + 30);
+
+            const isBusinessDay = businessDays.some(businessDay => {
+                const businessDayStart = new Date(businessDay.start);
+                const businessDayEnd = new Date(businessDay.end);
+                return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
+            });
+
+            const isBusinessEventTime = businessEventTimes.some(event => {
+                return slotStart < event.end && event.start < slotEnd;
+            });
+
+            const count = availability.reduce((acc, slot) => {
+                const eventStart = new Date(slot.startTime);
+                const eventEnd = new Date(slot.endTime);
+
+                if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
 
         // 営業日のイベント時間内に他のイベントがある場合
         if (isBusinessEventTime && count > 0) {
@@ -500,22 +559,8 @@ for (let i = 0; i < 7; i++) {
             cell.textContent = '◯';
             cell.classList.add('available');
         }
-        // 土日の19:30～21:00を×にする条件
-        else if ((slotStart.getDay() === 0 || slotStart.getDay() === 6) && 
-            ((slotStart.getHours() === 0 && slotStart.getMinutes() >= 00) || 
-             (slotStart.getHours() === 1 || slotStart.getHours() === 1))) {
-            cell.textContent = '✕';
-            cell.classList.add('unavailable');
-        }
-        // 月火木金の09:30～17:30を×にする条件
-        else if ((slotStart.getDay() === 1 || slotStart.getDay() === 2 || 
-                  slotStart.getDay() === 1 || slotStart.getDay() === 1) && 
-                 (slotStart.getHours() >= 1 && slotStart.getHours() < 1)) {
-            cell.textContent = '✕';
-            cell.classList.add('unavailable');
-        }
         // 日曜日で、営業日ではない場合
-        else if (slotStart.getDay() === 5 && !isBusinessDay && businessEventTimes.length === 0) {
+        else if (slotStart.getDay() === 2 && !isBusinessDay && businessEventTimes.length === 0) {
             cell.textContent = '✕';
             cell.classList.add('unavailable');
         }
@@ -536,60 +581,37 @@ for (let i = 0; i < 7; i++) {
         cell.setAttribute('data-date', slotStart.toISOString());
     }
 
-    // ×と×の間のセル数が3未満の場合、その間のセルを×にする
-    for (let j = 0; j < times.length - 1; j++) {
-        let start = -1;
-        let end = -1;
+        // ×と×の間のセル数が3未満の場合、その間のセルを×にする処理
+        for (let j = 0; j < times.length - 1; j++) {
+            let start = -1;
+            let end = -1;
 
-        // ×の開始位置を見つける
-        if (table.rows[j].cells[i + 1].textContent === '✕') {
-            start = j;
-        }
-
-        // その次の×を見つける
-        for (let k = j + 1; k < times.length; k++) {
-            if (table.rows[k].cells[i + 1].textContent === '✕') {
-                end = k;
-                break;
+            if (table.rows[j].cells[i + 1].textContent === '✕') {
+                start = j;
             }
-        }
 
-        // ×と×の間のセル数が3未満の場合、その間のセルを×に変更
-        if (end !== -1 && end - start < 4) {
-            for (let k = start + 1; k < end; k++) {
-                const cell = table.rows[k].cells[i + 1];
-                cell.textContent = '✕';
-                cell.classList.remove('available');
-                cell.classList.add('unavailable');
+            for (let k = j + 1; k < times.length; k++) {
+                if (table.rows[k].cells[i + 1].textContent === '✕') {
+                    end = k;
+                    break;
+                }
             }
-        }
 
-        // 次のループで位置を調整
-        if (end !== -1) {
-            j = end - 1; 
-        }
-    }
+            if (start !== -1 && end !== -1 && end - start < 4) {
+                for (let k = start + 1; k < end; k++) {
+                    const cell = table.rows[k].cells[i + 1];
+                    cell.textContent = '✕';
+                    cell.classList.remove('available');
+                    cell.classList.add('unavailable');
+                }
+            }
 
-    // ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
-    for (let i = 0; i < 7; i++) {
-        const twentyOClockRow = times.indexOf('17:30');
-        const twentyOneOClockRow = times.indexOf('18:00');
-
-        for (let j = twentyOClockRow; j < times.length; j++) {
-            const cell = table.rows[j].cells[i + 1];
-            const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
-            
-            // 20:00のセルに×がある場合、21:00のセルも×にする
-            if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
-                cell.textContent = '✕';
-                cell.classList.remove('available');
-                cell.classList.add('unavailable');
+            if (end !== -1) {
+                j = end - 1; 
             }
         }
     }
-}
 
-    
         }
 
         function updateCalendarHeader(date) {

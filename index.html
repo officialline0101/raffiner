@@ -560,7 +560,7 @@ function updateCalendar(availability, businessDays) {
             cell.classList.add('available');
         }
         // 日曜日で、営業日ではない場合
-        else if (slotStart.getDay() === 2 && !isBusinessDay && businessEventTimes.length === 0) {
+        else if (slotStart.getDay() === 5 && !isBusinessDay && businessEventTimes.length === 0) {
             cell.textContent = '✕';
             cell.classList.add('unavailable');
         }

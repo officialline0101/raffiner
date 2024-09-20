@@ -226,7 +226,7 @@
         </div>
 
         <!-- 性別が選択されるまで非表示にする部分 -->
-        <div class="label" id="menuLabel">メニューをお選びください</div>
+        <div class="label" id="menuLabel">コースをお選びください</div>
         <div class="menu-sections" id="menuSections">
             <!-- ボタンリスト -->
     <button type="button" onclick="selectSymptom(this)" id="menu1">セルマン前処理トリートメント</button>
@@ -298,7 +298,7 @@
 
 let selectedMenuTime = 0;
 
-        // 初期状態でメニューセクションを非表示にする
+        // 初期状態でコースセクションを非表示にする
         document.getElementById('menuLabel').style.display = 'none';
         document.getElementById('menuSections').style.display = 'none';
 
@@ -313,26 +313,26 @@ let selectedMenuTime = 0;
             // 選択された訪問回数を変数に格納
             visitCount = element.innerText;
             
-            // 性別が選択されたらメニューセクションを表示する
+            // 性別が選択されたらコースセクションを表示する
             document.getElementById('menuLabel').style.display = 'block';
             document.getElementById('menuSections').style.display = 'block';
 
-        // メニューの表示をリセット
+        // コースの表示をリセット
         document.querySelectorAll('.menu-sections button').forEach(button => {
             button.style.display = 'none';
         });
 
-        // 訪問回数に応じて表示するメニューを設定
+        // 訪問回数に応じて表示するコースを設定
         if (visitCount === '初めて') {
-            // 初回の場合に表示するメニュー
+            // 初回の場合に表示するコース
             showMenus(['menu1', 'menu2', 'menu3', 'menu4', 'menu5', 'menu6']); // セルマン前処理トリートメント, 毛穴エクストラクション
         } else if (visitCount === '2回目以降') {
-            // 2回目以降の場合に表示するメニュー
+            // 2回目以降の場合に表示するコース
             showMenus(['menu1', 'menu2', 'menu3', 'menu4', 'menu5']); // エイジングケアコース, エイジングケアスペシャルコース, オールハンドリフトフェイシャルケア, 相談して決める
         }
     }
 
-    // メニュー表示を簡単に管理できる関数
+    // コース表示を簡単に管理できる関数
     function showMenus(menuIds) {
         menuIds.forEach(function(menuId) {
             document.getElementById(menuId).style.display = 'inline-block';
@@ -396,14 +396,14 @@ function selectDate(cell) {
 
 // フォームデータのチェック
 if (!formData.name || !formData.phone|| !formData.selectedSymptom|| !formData.visitCount) {
-    alert('氏名・電話番号・来店回数・メニューすべてご記入ください。');
+    alert('氏名・電話番号・来店回数・コースすべてご記入ください。');
     return;
 }
 
             // LINEトークにメッセージを送信
             liff.sendMessages([{
                 type: 'text',
-                text: `【予約フォーム】\nお名前：${formData.name}\n電話番号：${formData.phone}\nメニュー：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
+                text: `【予約フォーム】\nお名前：${formData.name}\n電話番号：${formData.phone}\nコース：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
                 alert('当日キャンセルは無いようにお願いいたします。');
